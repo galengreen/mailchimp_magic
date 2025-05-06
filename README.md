@@ -1,84 +1,121 @@
 # Mailchimp Magic ✨
 
-A powerful tool that transforms Mailchimp newsletter HTML into clean, optimized content perfect for website embedding. With a wave of its wand, it removes unnecessary elements and standardizes the display for seamless integration into your website.
+A browser-based tool that helps clean and format Mailchimp HTML templates. Transform your Mailchimp email templates with just a few clicks - remove unwanted elements, standardize styling, and preview changes in real-time.
 
-## ✨ Features
+## 🌟 Features
 
-- Removes footer sections from Mailchimp newsletters
-- Eliminates LinkedIn social media sections
-- Standardizes background colors to white
-- Supports both modern and legacy Mailchimp formats
-- Preserves the main newsletter content while removing clutter
-- Web-based interface with live preview
-- Toggle switches for customizing the extraction process
+- **Live Preview**: See your changes in real-time with side-by-side input and output previews
+- **Automatic Cleaning**:
+  - Remove Mailchimp footer
+  - Remove social media sections
+  - Remove legacy footer elements
+  - Standardize background colors to white
+- **Modern Interface**:
+  - Dark mode interface
+  - Responsive design
+  - Beautiful green accent theme
+- **Easy to Use**:
+  - Copy output with one click
+  - Instant preview updates
+  - No installation required
 
-## 🛠️ Requirements
+## 🚀 Quick Start
 
-- Python 3.x
-- Flask
-- BeautifulSoup4
+Visit [Mailchimp Magic](https://yourusername.github.io/mailchimp-magic) to use the tool online.
 
-## 🚀 Installation
+Or run it locally:
 
-1. Clone this repository:
 ```bash
+# Clone the repository
 git clone https://github.com/yourusername/mailchimp-magic.git
+
+# Navigate to the project directory
 cd mailchimp-magic
+
+# Start a local server (using Python)
+python -m http.server 8000
+
+# Or use any other static file server
 ```
 
-2. Install the required dependencies:
-```bash
-pip install -r requirements.txt
-```
+Then open `http://localhost:8000` in your browser.
 
-## 🎮 Usage
+## 💡 How to Use
 
-### Web Interface
+1. **Input Your HTML**
+   - Paste your Mailchimp HTML into the input textarea
+   - See the original preview instantly
 
-1. Start the web server:
-```bash
-python app.py
-```
+2. **Watch the Magic**
+   - The tool automatically processes your HTML
+   - Changes are reflected in real-time
+   - Preview the cleaned version immediately
 
-2. Open your browser and navigate to `http://localhost:8080`
+3. **Get Your Clean HTML**
+   - Review the changes in the output preview
+   - Click "Copy Output" to copy the cleaned HTML
+   - Paste back into Mailchimp
 
-3. Use the web interface to:
-   - Paste your Mailchimp HTML in the input area
-   - Toggle different extraction options
-   - Preview both input and output in real-time
-   - Copy the processed HTML to clipboard
+## 🛠 Technical Details
 
-### Command Line
+This is a pure frontend application built with:
 
-1. Place your Mailchimp newsletter HTML file in the project directory and name it `mailchimp_input.html`
+- HTML5
+- CSS3 (with custom properties for theming)
+- Vanilla JavaScript (no frameworks)
+- Bootstrap 5 for responsive layout
+- Font Awesome for icons
 
-2. Run the script:
-```bash
-python mailchimp_magic.py
-```
-
-3. The processed newsletter will be saved as `mailchimp_output.html`
-
-## 🎯 How It Works
-
-The script performs the following operations on the input HTML:
-- Removes the footer section (identified by `data-block-id="17"`)
-- Removes LinkedIn social media sections
-- Changes any elements with `background-color:#252525` to white
-- Removes legacy Mailchimp footer sections
-
-## 📁 File Structure
-
-- `app.py` - Flask web application
-- `mailchimp_magic.py` - Core script for processing newsletters
-- `templates/index.html` - Web interface template
-- `mailchimp_input.html` - Place your Mailchimp newsletter HTML here (for CLI usage)
-- `mailchimp_output.html` - Generated clean newsletter HTML (for CLI usage)
+The HTML processing is done entirely in the browser using the `DOMParser` API, making it fast and efficient with no server requirements.
 
 ## 🤝 Contributing
 
-Feel free to submit issues and enhancement requests! Let's make this magic even more powerful together.
+Contributions are welcome! Here's how you can help:
 
-## 📄 License
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-This project is open source and available under the MIT License.
+## 📝 License
+
+This project is licensed under the MIT License - see below for details:
+
+```
+MIT License
+
+Copyright (c) 2024 Your Name
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 🌐 Browser Support
+
+Tested and working in:
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## 📧 Contact
+
+Your Name - [@yourusername](https://twitter.com/yourusername)
+
+Project Link: [https://github.com/yourusername/mailchimp-magic](https://github.com/yourusername/mailchimp-magic) 
