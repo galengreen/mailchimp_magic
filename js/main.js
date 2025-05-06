@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
         openHtmlInNewTab(document.getElementById('inputHtml').value);
     });
     document.getElementById('openOutputPreview').addEventListener('click', function() {
-        openHtmlInNewTab(document.getElementById('outputHtml').value);
+        openHtmlInNewTab(document.getElementById('outputHtml').textContent);
     });
 });
 
