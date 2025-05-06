@@ -1,5 +1,5 @@
 // Mouse Trail Effect using Canvas
-document.addEventListener('DOMContentLoaded', function() {
+function initMouseTrail() {
     // Create canvas element
     const canvas = document.createElement('canvas');
     canvas.style.position = 'fixed';
@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let particles = [];
     let mouse = { x: 0, y: 0 };
     let lastMouse = { x: 0, y: 0 };
+    let animationFrameId = null;
 
     // Handle window resize
     window.addEventListener('resize', () => {
@@ -129,7 +130,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Animation loop
+    // Track mouse movement
+    document.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+    });
+
+    // Start animation
     function animate() {
         ctx.clearRect(0, 0, width, height);
         
@@ -153,9 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = 0; i < particleCount; i++) {
                 const offsetX = Math.random() * 16 - 8;
                 const offsetY = Math.random() * 16 - 8;
-                // Create both orb and star particles
                 particles.push(new OrbParticle(mouse.x + offsetX, mouse.y + offsetY));
-                if (Math.random() < 0.4) { // 40% chance to create a star
+                if (Math.random() < 0.4) {
                     particles.push(new StarParticle(mouse.x + offsetX, mouse.y + offsetY));
                 }
             }
@@ -164,17 +170,28 @@ document.addEventListener('DOMContentLoaded', function() {
         lastMouse.x = mouse.x;
         lastMouse.y = mouse.y;
 
-        requestAnimationFrame(animate);
+        animationFrameId = requestAnimationFrame(animate);
     }
 
-    // Track mouse movement
-    document.addEventListener('mousemove', (e) => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-    });
-
-    // Start animation
+    // Start the animation
     animate();
+
+    // Cleanup function
+    return function cleanup() {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        if (canvas && canvas.parentNode) {
+            canvas.parentNode.removeChild(canvas);
+        }
+    };
+}
+
+// Initialize on DOMContentLoaded as a fallback
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof initMouseTrail === 'function') {
+        initMouseTrail();
+    }
 });
 
 function copyOutput() {
