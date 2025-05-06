@@ -244,10 +244,10 @@ function getOptions() {
     return {
         remove_footer: document.getElementById('removeFooter').checked,
         remove_social: document.getElementById('removeSocial').checked,
-        standardize_bg: document.getElementById('standardizeBg').checked,
         remove_legacy_footer: document.getElementById('removeLegacyFooter').checked,
         standardize_dark_gray_bg: document.getElementById('standardizeDarkGrayBg').checked,
-        remove_header_banner: document.getElementById('removeHeaderBanner').checked
+        remove_header_banner: document.getElementById('removeHeaderBanner').checked,
+        remove_subscribe: document.getElementById('removeSubscribe').checked
     };
 }
 
@@ -263,33 +263,6 @@ const cleaningActions = {
             const socialTr = socialTable.closest('tr');
             if (socialTr) socialTr.remove();
         }
-    },
-    standardize_bg: doc => {
-        // Standardize all dark backgrounds (hex or rgb) to white
-        doc.querySelectorAll('[style*="background-color"]').forEach(el => {
-            const bg = el.style.backgroundColor.trim().toLowerCase();
-            // Match #252525, #232323, #222, etc.
-            if (bg.match(/^#2[0-5][0-9]2[0-5][0-9]2[0-5][0-9]$/) || bg.match(/^#222$/)) {
-                el.style.backgroundColor = 'white';
-            }
-            // Match rgb(0-60, 0-60, 0-60)
-            const rgbMatch = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-            if (rgbMatch) {
-                const [r, g, b] = rgbMatch.slice(1).map(Number);
-                if (r <= 60 && g <= 60 && b <= 60) {
-                    el.style.backgroundColor = 'white';
-                }
-            }
-            // Also match #252525 in style attribute (not parsed)
-            if (el.getAttribute('style') && el.getAttribute('style').includes('#252525')) {
-                el.style.backgroundColor = 'white';
-            }
-        });
-        const mainContainer = doc.querySelector('table.mcnTextBlock');
-        if (mainContainer) mainContainer.style.backgroundColor = 'white';
-        if (doc.body) doc.body.style.backgroundColor = 'white';
-        const mainTable = doc.querySelector('table.mcnTextBlockInner');
-        if (mainTable) mainTable.style.backgroundColor = 'white';
     },
     remove_legacy_footer: doc => {
         const footerTd = doc.querySelector('td#templateFooter');
@@ -329,6 +302,17 @@ const cleaningActions = {
         // Also try to remove a table row with a banner-like class
         const bannerRow = doc.querySelector('tr[class*="header" i], tr[class*="banner" i]');
         if (bannerRow) bannerRow.remove();
+    },
+    remove_subscribe: doc => {
+        // Remove subscribe button sections (Mailchimp: class 'mceButtonLink' with href containing 'SUBSCRIBE')
+        doc.querySelectorAll('a.mceButtonLink[href*="SUBSCRIBE"], a[href*="SUBSCRIBE"]').forEach(a => {
+            const btnRow = a.closest('tr') || a.closest('table') || a.closest('div') || a;
+            btnRow.remove();
+        });
+        // Also remove any block with data-block-id or id containing 'subscribe'
+        doc.querySelectorAll('[data-block-id*="subscribe" i], [id*="subscribe" i]').forEach(el => {
+            el.remove();
+        });
     }
 };
 

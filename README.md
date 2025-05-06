@@ -36,8 +36,8 @@ Mailchimp's exported HTML is cluttered with extra branding, social links, and in
 - **Footer:** Remove the standard Mailchimp footer.
 - **Legacy Footer:** Remove older Mailchimp footer blocks.
 - **Social:** Remove social media follow sections.
-- **Content Background:** Standardize content area backgrounds.
 - **Page Background:** Standardize the overall page background.
+- **Subscribe:** Remove the subscribe button section.
 
 ---
 
