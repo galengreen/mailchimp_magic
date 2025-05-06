@@ -1,88 +1,61 @@
-# Mailchimp Magic ✨
+# Mailchimp Magic
 
-A powerful web-based tool for cleaning and optimizing Mailchimp HTML emails. Remove unwanted sections, standardize backgrounds, and get clean, professional-looking email templates.
+**Mailchimp Magic** is a free, web-based tool for cleaning and optimizing Mailchimp HTML emails—**specifically designed to prepare content for embedding into iframes on the [XRB website](https://www.xrb.govt.nz/)** or similar platforms.
 
-## 🌟 Features
+---
 
-- **HTML Cleaning Options**
-  - Remove Mailchimp footer
-  - Remove social media sections
-  - Standardize background colors
-  - Remove legacy footer elements
+## Features
 
-- **User-Friendly Interface**
-  - Real-time preview
-  - Collapsible cleaning options
-  - Dark mode theme
-  - Responsive design
+- One-click removal of Mailchimp branding, footers, banners, and social sections.
+- Standardizes backgrounds for seamless iframe embedding.
+- Live preview and easy copy/download of cleaned HTML.
+- Flexible toggles for each cleaning step.
 
-- **File Operations**
-  - Upload HTML files
-  - Download cleaned HTML
-  - Copy to clipboard
-  - Live preview
+---
 
-## 🚀 Quick Start
+## Using with XRB's Website
 
-1. Visit [Mailchimp Magic](https://galengreen.space/mailchimp_magic/)
-2. Paste your Mailchimp HTML or upload a file
-3. Toggle cleaning options as needed
-4. Preview the changes in real-time
-5. Download or copy the cleaned HTML
+**Why?**  
+Mailchimp's exported HTML is cluttered with extra branding, social links, and inconsistent backgrounds. Embedding this directly into an iframe on the XRB website can cause layout and style issues.
 
-## 💻 Usage
+**How to use:**
+1. Export your Mailchimp campaign as HTML.
+2. Paste or upload the HTML into Mailchimp Magic.
+3. Toggle cleaning options as needed (remove footers, banners, social, standardize backgrounds).
+4. Preview the cleaned result.
+5. Copy or download the cleaned HTML.
+6. Embed the cleaned HTML into an iframe on the XRB website.
 
-### Input Methods
-- **Paste HTML**: Directly paste your Mailchimp HTML into the input box
-- **Upload File**: Click "Upload HTML File" to select an HTML file from your computer
+> **This tool is optimized for XRB's workflow and ensures your embedded content looks professional and matches the XRB brand.**
 
-### Cleaning Options
-- **Remove Footer**: Removes the standard Mailchimp footer
-- **Remove Social Media**: Removes social media sharing sections
-- **Standardize Background**: Sets all backgrounds to white
-- **Remove Legacy Footer**: Removes older Mailchimp footer elements
+---
 
-### Output Options
-- **Copy**: Click "Copy Output" to copy the cleaned HTML to your clipboard
-- **Download**: Click "Download" to save the cleaned HTML as a file
+## Cleaning Options
 
-## 🛠️ Technical Details
+- **Banner:** Remove the header image/banner.
+- **Footer:** Remove the standard Mailchimp footer.
+- **Legacy Footer:** Remove older Mailchimp footer blocks.
+- **Social:** Remove social media follow sections.
+- **Content Background:** Standardize content area backgrounds.
+- **Page Background:** Standardize the overall page background.
 
-- Built with vanilla JavaScript
-- Uses Bootstrap 5 for styling
-- No server-side processing
-- Works entirely in the browser
-- Responsive design for all devices
+---
 
-## 🤝 Contributing
+## Quick Start
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Paste or upload your Mailchimp HTML.
+2. Toggle the cleaning options you want.
+3. Preview, copy, or download the cleaned HTML.
+4. Embed into your iframe.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+---
 
-## 📝 License
+## Credits
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Created by [Galen Green](https://www.linkedin.com/in/galen-green-9b8835297) for XRB.
 
-## 🌐 Browser Support
+---
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+## License
 
-## 📧 Contact
-
-Galen Green - [@galengreen](https://twitter.com/galengreen)
-
-Project Link: [https://github.com/galengreen/mailchimp_magic](https://github.com/galengreen/mailchimp_magic)
-
-## 🙏 Acknowledgments
-
-- Bootstrap for the UI framework
-- Font Awesome for the icons
-- The Mailchimp community for inspiration 
+MIT License 
