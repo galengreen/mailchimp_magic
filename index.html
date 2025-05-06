@@ -199,7 +199,7 @@
                         <i class="fab fa-linkedin fa-lg"></i>
                     </a>
                 </div>
-                <p class="text-muted mb-0">© 2024 Mailchimp Magic. All rights reserved.</p>
+                <p class="text-muted mb-0">© <span id="copyrightYear"></span> Mailchimp Magic. All rights reserved.</p>
             </footer>
         </div>
     </div>
@@ -212,6 +212,10 @@
             if (typeof initMouseTrail === 'function') {
                 initMouseTrail();
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('copyrightYear').textContent = new Date().getFullYear();
         });
     </script>
 </body>

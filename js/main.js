@@ -346,23 +346,23 @@ function modifyHtml(html, options) {
 
 // --- Preview and File Handling ---
 function updatePreview(frameId, content) {
-    const frame = document.getElementById(frameId);
-    const frameDoc = frame.contentDocument || frame.contentWindow.document;
-    frameDoc.open();
-    frameDoc.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>
+  const frame = document.getElementById(frameId);
+  const frameDoc = frame.contentDocument || frame.contentWindow.document;
+  frameDoc.open();
+  frameDoc.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
             body { background-color: white; margin: 0; padding: 0; }
-          </style>
-        </head>
-        <body class="preview-frame-content">
-          ${content}
-        </body>
-        </html>
-    `);
-    frameDoc.close();
+      </style>
+    </head>
+    <body class="preview-frame-content">
+      ${content}
+    </body>
+    </html>
+  `);
+  frameDoc.close();
 }
 
 function handleFileUpload(event) {
@@ -380,14 +380,14 @@ function handleFileUpload(event) {
 
 // --- Main Cleaning Trigger ---
 function processHtml() {
-    const inputHtml = document.getElementById('inputHtml').value;
+  const inputHtml = document.getElementById('inputHtml').value;
     const options = getOptions();
-    try {
-        const modifiedHtml = modifyHtml(inputHtml, options);
-        document.getElementById('outputHtml').value = modifiedHtml;
-        updatePreview('outputPreview', modifiedHtml);
-    } catch (error) {
-        console.error('Error:', error);
+  try {
+    const modifiedHtml = modifyHtml(inputHtml, options);
+    document.getElementById('outputHtml').value = modifiedHtml;
+    updatePreview('outputPreview', modifiedHtml);
+  } catch (error) {
+    console.error('Error:', error);
         alert('An error occurred while processing the HTML.\n' + (error.message || error));
     }
 }
