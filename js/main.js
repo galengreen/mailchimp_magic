@@ -368,7 +368,11 @@ function processHtml() {
     const options = getOptions();
   try {
     const modifiedHtml = modifyHtml(inputHtml, options);
-    document.getElementById('outputHtml').value = modifiedHtml;
+    const outputHtml = document.getElementById('outputHtml');
+    outputHtml.textContent = modifiedHtml;
+
+    // Syntax highlighting for the output html
+    Prism.highlightElement(outputHtml);
     updatePreview('outputPreview', modifiedHtml);
   } catch (error) {
     console.error('Error:', error);
@@ -379,8 +383,15 @@ function processHtml() {
 // --- Output Copy/Download ---
 function copyOutput() {
     const outputText = document.getElementById('outputHtml');
-    outputText.select();
+
+    // Temporarily create a textarea of the output text to copy it
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.value = outputText.textContent;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
     document.execCommand('copy');
+    document.body.removeChild(tempTextarea);
+
     const button = document.querySelector('.btn-primary');
     const originalText = button.innerHTML;
     button.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -390,7 +401,7 @@ function copyOutput() {
 }
 
 function downloadOutput() {
-    const outputText = document.getElementById('outputHtml').value;
+    const outputText = document.getElementById('outputHtml').textContent;
     if (!outputText) {
         alert('No content to download!');
         return;
