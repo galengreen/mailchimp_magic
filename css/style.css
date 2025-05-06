@@ -1,22 +1,68 @@
 :root {
   --primary-color: #2ecc71;
   --secondary-color: #27ae60;
-  --bg-dark: #1a1a1a;
-  --card-bg-dark: #2d2d2d;
-  --text-dark: #ffffff;
-  --border-dark: #404040;
   --animation-timing: 0.3s ease;
 }
 
+:root[data-bs-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --card-bg: #2d2d2d;
+  --text-color: #ffffff;
+  --border-color: #404040;
+  --input-bg: #2d2d2d;
+  --input-border: #404040;
+  --input-text: #ffffff;
+  --input-placeholder: rgba(255, 255, 255, 0.5);
+  --card-shadow: 0 4px 16px 0 rgba(46, 204, 113, 0.1),
+    0 1.5px 8px 0 rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(46, 204, 113, 0.08);
+  --card-hover-shadow: 0 8px 32px 0 rgba(46, 204, 113, 0.18),
+    0 3px 16px 0 rgba(0, 0, 0, 0.13), 0 0 0 3px rgba(46, 204, 113, 0.12);
+  --prism-bg: #2d2d2d;
+  --prism-text: #ffffff;
+  --prism-comment: #6a9955;
+  --prism-string: #ce9178;
+  --prism-keyword: #569cd6;
+  --prism-function: #dcdcaa;
+  --prism-number: #b5cea8;
+  --prism-operator: #d4d4d4;
+  --prism-punctuation: #d4d4d4;
+}
+
+:root[data-bs-theme="light"] {
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-color: #212529;
+  --border-color: #dee2e6;
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --input-text: #212529;
+  --input-placeholder: rgba(0, 0, 0, 0.5);
+  --card-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1),
+    0 1.5px 8px 0 rgba(0, 0, 0, 0.05), 0 0 0 2px rgba(0, 0, 0, 0.05);
+  --card-hover-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1),
+    0 3px 16px 0 rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(0, 0, 0, 0.08);
+  --prism-bg: #f5f5f5;
+  --prism-text: #333333;
+  --prism-comment: #008000;
+  --prism-string: #a31515;
+  --prism-keyword: #0000ff;
+  --prism-function: #795e26;
+  --prism-number: #098658;
+  --prism-operator: #000000;
+  --prism-punctuation: #000000;
+}
+
 body {
-  background: var(--bg-dark);
-  color: var(--text-dark);
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color var(--animation-timing),
+    color var(--animation-timing);
 }
 
 .preview-frame {
   width: 100%;
   height: 600px;
-  border: 1px solid var(--border-dark);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   background: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -107,10 +153,9 @@ input:checked + .slider:before {
 .card {
   border: none;
   border-radius: 12px;
-  box-shadow: 0 4px 16px 0 rgba(46, 204, 113, 0.1),
-    0 1.5px 8px 0 rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(46, 204, 113, 0.08);
+  box-shadow: var(--card-shadow);
   transition: box-shadow 0.3s, transform 0.2s;
-  background: var(--card-bg-dark);
+  background: var(--card-bg);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -119,8 +164,7 @@ input:checked + .slider:before {
 
 .card:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 8px 32px 0 rgba(46, 204, 113, 0.18),
-    0 3px 16px 0 rgba(0, 0, 0, 0.13), 0 0 0 3px rgba(46, 204, 113, 0.12);
+  box-shadow: var(--card-hover-shadow);
 }
 
 .card-header {
@@ -216,9 +260,9 @@ h1:hover .magic-wand {
 }
 
 textarea {
-  background-color: var(--card-bg-dark) !important;
-  color: var(--text-dark) !important;
-  border-color: var(--border-dark) !important;
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
   font-family: monospace;
   font-size: 14px;
   line-height: 1.5;
@@ -227,18 +271,20 @@ textarea {
   max-height: 800px;
   white-space: pre;
   tab-size: 2;
+  transition: background-color var(--animation-timing),
+    color var(--animation-timing), border-color var(--animation-timing);
 }
 
 textarea:focus {
-  background-color: var(--card-bg-dark) !important;
-  color: var(--text-dark) !important;
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
   border-color: var(--primary-color) !important;
   box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25) !important;
   outline: none;
 }
 
 textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: var(--input-placeholder) !important;
 }
 
 .input-group {
@@ -341,6 +387,7 @@ textarea::placeholder {
   margin: 0 0.5rem;
   position: relative;
   display: inline-block;
+  color: var(--text-color) !important;
 }
 
 .social-icons a:hover {
@@ -422,4 +469,108 @@ iframe {
 
 .preview-newtab-btn .fa-external-link-alt {
   color: #fff !important;
+}
+
+/* Update code output box styling */
+pre {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: 8px;
+  margin: 0;
+  padding: 1rem;
+  overflow: auto;
+  transition: background-color var(--animation-timing),
+    color var(--animation-timing), border-color var(--animation-timing);
+}
+
+pre:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25) !important;
+  outline: none;
+}
+
+pre code {
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre;
+  tab-size: 2;
+}
+
+/* Override Prism.js default focus styles */
+pre:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25) !important;
+}
+
+/* Override Prism.js theme colors */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: var(--prism-comment) !important;
+}
+
+.token.punctuation {
+  color: var(--prism-punctuation) !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: var(--prism-number) !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: var(--prism-string) !important;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: var(--prism-operator) !important;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: var(--prism-keyword) !important;
+}
+
+.token.function {
+  color: var(--prism-function) !important;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: var(--prism-text) !important;
+}
+
+/* Theme toggle positioning */
+#themeToggle,
+#mouseEffectsToggle {
+  margin-top: -5px;
+}
+
+#themeToggle:hover,
+#mouseEffectsToggle:hover {
+  color: #2ecc71 !important;
+  border-color: #2ecc71 !important;
+  background-color: transparent !important;
+}
+
+#themeToggle:hover i,
+#mouseEffectsToggle:hover i {
+  color: #2ecc71 !important;
 }

@@ -1,7 +1,14 @@
 // Mouse Trail Effect using Canvas
+let mouseTrailCleanup = null;
+let isMouseTrailEnabled = true;
+let animationFrameId = null;
+let canvas = null;
+
 function initMouseTrail() {
+    if (!isMouseTrailEnabled) return null;
+
     // Create canvas element
-    const canvas = document.createElement('canvas');
+    canvas = document.createElement('canvas');
     canvas.style.position = 'fixed';
     canvas.style.top = '0';
     canvas.style.left = '0';
@@ -17,7 +24,6 @@ function initMouseTrail() {
     let particles = [];
     let mouse = { x: 0, y: 0 };
     let lastMouse = { x: 0, y: 0 };
-    let animationFrameId = null;
 
     // Handle window resize
     window.addEventListener('resize', () => {
@@ -63,9 +69,11 @@ function initMouseTrail() {
                 this.x, this.y, 0,
                 this.x, this.y, this.size * 3
             );
-            gradient.addColorStop(0, `rgba(46, 204, 113, ${this.life * 0.4})`);
-            gradient.addColorStop(0.5, `rgba(46, 204, 113, ${this.life * 0.2})`);
-            gradient.addColorStop(1, `rgba(46, 204, 113, 0)`);
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            const color = isDark ? '46, 204, 113' : '46, 204, 113'; // Keep green for both themes
+            gradient.addColorStop(0, `rgba(${color}, ${this.life * 0.4})`);
+            gradient.addColorStop(0.5, `rgba(${color}, ${this.life * 0.2})`);
+            gradient.addColorStop(1, `rgba(${color}, 0)`);
             
             ctx.fillStyle = gradient;
             ctx.fill();
@@ -112,10 +120,12 @@ function initMouseTrail() {
             ctx.closePath();
             
             // Create gradient for star
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            const color = isDark ? '255, 255, 255' : '46, 204, 113'; // White for dark theme, green for light theme
             const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.outerRadius * 2);
-            gradient.addColorStop(0, `rgba(255, 255, 255, ${this.life * 0.9})`);
-            gradient.addColorStop(0.5, `rgba(255, 255, 255, ${this.life * 0.5})`);
-            gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
+            gradient.addColorStop(0, `rgba(${color}, ${this.life * 0.9})`);
+            gradient.addColorStop(0.5, `rgba(${color}, ${this.life * 0.5})`);
+            gradient.addColorStop(1, `rgba(${color}, 0)`);
             
             ctx.fillStyle = gradient;
             ctx.fill();
@@ -123,7 +133,7 @@ function initMouseTrail() {
             // Add sparkle effect
             ctx.beginPath();
             ctx.arc(0, 0, this.outerRadius * 0.2, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${this.life * 0.8})`;
+            ctx.fillStyle = `rgba(${color}, ${this.life * 0.8})`;
             ctx.fill();
             
             ctx.restore();
@@ -136,8 +146,28 @@ function initMouseTrail() {
         mouse.y = e.clientY;
     });
 
+    // Add theme change listener
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'data-bs-theme') {
+                // Clear existing particles when theme changes
+                particles = [];
+            }
+        });
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-bs-theme']
+    });
+
     // Start animation
     function animate() {
+        if (!isMouseTrailEnabled) {
+            cleanup();
+            return;
+        }
+
         ctx.clearRect(0, 0, width, height);
         
         // Update and draw particles
@@ -177,22 +207,20 @@ function initMouseTrail() {
     animate();
 
     // Cleanup function
-    return function cleanup() {
+    function cleanup() {
         if (animationFrameId) {
             cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
         }
         if (canvas && canvas.parentNode) {
             canvas.parentNode.removeChild(canvas);
+            canvas = null;
         }
-    };
-}
-
-// Initialize on DOMContentLoaded as a fallback
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof initMouseTrail === 'function') {
-        initMouseTrail();
+        particles = [];
     }
-});
+
+    return cleanup;
+}
 
 // --- Utility: Open HTML in New Tab ---
 function openHtmlInNewTab(html) {
@@ -206,6 +234,77 @@ function openHtmlInNewTab(html) {
 
 // --- Event Listeners for UI ---
 document.addEventListener('DOMContentLoaded', function() {
+    // Mouse effects toggle functionality
+    const mouseEffectsToggle = document.getElementById('mouseEffectsToggle');
+    const mouseEffectsIcon = mouseEffectsToggle.querySelector('i');
+    
+    // Check for saved mouse effects preference, default to enabled if not set
+    isMouseTrailEnabled = localStorage.getItem('mouseEffects') !== 'disabled';
+    if (isMouseTrailEnabled) {
+        mouseTrailCleanup = initMouseTrail();
+        mouseEffectsIcon.classList.replace('fa-magic', 'fa-magic-wand-sparkles');
+    } else {
+        mouseEffectsIcon.classList.replace('fa-magic-wand-sparkles', 'fa-magic');
+    }
+
+    mouseEffectsToggle.addEventListener('click', function() {
+        isMouseTrailEnabled = !isMouseTrailEnabled;
+        
+        if (isMouseTrailEnabled) {
+            // Enable effects
+            mouseTrailCleanup = initMouseTrail();
+            mouseEffectsIcon.classList.replace('fa-magic', 'fa-magic-wand-sparkles');
+            localStorage.setItem('mouseEffects', 'enabled');
+        } else {
+            // Disable effects
+            if (mouseTrailCleanup) {
+                mouseTrailCleanup();
+                mouseTrailCleanup = null;
+            }
+            mouseEffectsIcon.classList.replace('fa-magic-wand-sparkles', 'fa-magic');
+            localStorage.setItem('mouseEffects', 'disabled');
+        }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    
+    // Function to update theme
+    function updateTheme(theme) {
+        document.documentElement.setAttribute('data-bs-theme', theme);
+        themeIcon.classList.replace(
+            theme === 'dark' ? 'fa-sun' : 'fa-moon',
+            theme === 'dark' ? 'fa-moon' : 'fa-sun'
+        );
+        localStorage.setItem('theme', theme);
+        
+        // Update preview frames background
+        const previewFrames = document.querySelectorAll('.preview-frame');
+        previewFrames.forEach(frame => {
+            const frameDoc = frame.contentDocument || frame.contentWindow.document;
+            if (frameDoc.body) {
+                frameDoc.body.style.backgroundColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
+            }
+        });
+
+        // Re-highlight code after theme change
+        const outputHtml = document.getElementById('outputHtml');
+        if (outputHtml) {
+            Prism.highlightElement(outputHtml);
+        }
+    }
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    updateTheme(savedTheme);
+
+    themeToggle.addEventListener('click', function() {
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        updateTheme(newTheme);
+    });
+
     // Input/Output live preview and cleaning
     const inputHtml = document.getElementById('inputHtml');
     let debounceTimer;
