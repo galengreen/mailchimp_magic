@@ -105,6 +105,9 @@ input:checked + .slider:before {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s;
   background: var(--card-bg-dark);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:hover {
@@ -174,6 +177,14 @@ textarea {
   background-color: var(--card-bg-dark) !important;
   color: var(--text-dark) !important;
   border-color: var(--border-dark) !important;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 400px;
+  max-height: 800px;
+  white-space: pre;
+  tab-size: 2;
 }
 
 textarea:focus {
@@ -181,4 +192,101 @@ textarea:focus {
   color: var(--text-dark) !important;
   border-color: var(--primary-color) !important;
   box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25) !important;
+  outline: none;
+}
+
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.input-group {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.input-group .form-control {
+  border-right: none;
+}
+
+.input-group .btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: none;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+.input-group .form-control:focus {
+  box-shadow: none;
+  border-color: var(--primary-color);
+}
+
+.input-group .form-control:focus + .btn {
+  border-color: var(--primary-color);
+}
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-body textarea {
+  flex: 1;
+}
+
+.card-header[data-bs-toggle="collapse"] {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.card-header[data-bs-toggle="collapse"]:hover {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  opacity: 0.9;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.collapsed .toggle-icon {
+  transform: rotate(-180deg);
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  border-color: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-success {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  opacity: 0.9;
 }
