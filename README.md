@@ -50,14 +50,14 @@ python app.py
 
 ### Command Line
 
-1. Place your Mailchimp newsletter HTML file in the project directory and name it `input.html`
+1. Place your Mailchimp newsletter HTML file in the project directory and name it `mailchimp_input.html`
 
 2. Run the script:
 ```bash
-python modify_newsletter.py
+python mailchimp_magic.py
 ```
 
-3. The processed newsletter will be saved as `output.html`
+3. The processed newsletter will be saved as `mailchimp_output.html`
 
 ## 🎯 How It Works
 
@@ -70,10 +70,10 @@ The script performs the following operations on the input HTML:
 ## 📁 File Structure
 
 - `app.py` - Flask web application
-- `modify_newsletter.py` - Core script for processing newsletters
+- `mailchimp_magic.py` - Core script for processing newsletters
 - `templates/index.html` - Web interface template
-- `input.html` - Place your Mailchimp newsletter HTML here (for CLI usage)
-- `output.html` - Generated clean newsletter HTML (for CLI usage)
+- `mailchimp_input.html` - Place your Mailchimp newsletter HTML here (for CLI usage)
+- `mailchimp_output.html` - Generated clean newsletter HTML (for CLI usage)
 
 ## 🤝 Contributing
 
