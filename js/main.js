@@ -194,193 +194,230 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function copyOutput() {
-  const outputText = document.getElementById('outputHtml');
-  outputText.select();
-  document.execCommand('copy');
-  
-  // Show feedback
-  const button = document.querySelector('.btn-primary');
-  const originalText = button.innerHTML;
-  button.innerHTML = '<i class="fas fa-check"></i> Copied!';
-  setTimeout(() => {
-    button.innerHTML = originalText;
-  }, 2000);
+// --- Utility: Open HTML in New Tab ---
+function openHtmlInNewTab(html) {
+    const blob = new Blob([
+        `<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>${html}</body></html>`
+    ], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
-function downloadOutput() {
-  const outputText = document.getElementById('outputHtml').value;
-  if (!outputText) {
-    alert('No content to download!');
-    return;
-  }
+// --- Event Listeners for UI ---
+document.addEventListener('DOMContentLoaded', function() {
+    // Input/Output live preview and cleaning
+    const inputHtml = document.getElementById('inputHtml');
+    let debounceTimer;
+    inputHtml.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            updatePreview('inputPreview', this.value);
+            processHtml();
+        }, 500);
+    });
+    // Toggle switches
+    document.querySelectorAll('.toggle-switch input[type="checkbox"]').forEach(toggle => {
+        toggle.addEventListener('change', processHtml);
+    });
+    // Collapse icon
+    const cleaningOptions = document.getElementById('cleaningOptions');
+    cleaningOptions.addEventListener('hide.bs.collapse', function () {
+        document.querySelector('.toggle-icon').classList.add('collapsed');
+    });
+    cleaningOptions.addEventListener('show.bs.collapse', function () {
+        document.querySelector('.toggle-icon').classList.remove('collapsed');
+    });
+    // File upload
+    document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
+    // Open previews in new tab
+    document.getElementById('openInputPreview').addEventListener('click', function() {
+        openHtmlInNewTab(document.getElementById('inputHtml').value);
+    });
+    document.getElementById('openOutputPreview').addEventListener('click', function() {
+        openHtmlInNewTab(document.getElementById('outputHtml').value);
+    });
+});
 
-  const blob = new Blob([outputText], { type: 'text/html' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'cleaned_mailchimp.html';
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  document.body.removeChild(a);
+// --- Cleaning Option State ---
+function getOptions() {
+    return {
+        remove_footer: document.getElementById('removeFooter').checked,
+        remove_social: document.getElementById('removeSocial').checked,
+        standardize_bg: document.getElementById('standardizeBg').checked,
+        remove_legacy_footer: document.getElementById('removeLegacyFooter').checked,
+        standardize_dark_gray_bg: document.getElementById('standardizeDarkGrayBg').checked,
+        remove_header_banner: document.getElementById('removeHeaderBanner').checked
+    };
+}
+
+// --- Cleaning Actions Mapping ---
+const cleaningActions = {
+    remove_footer: doc => {
+        const footer = doc.querySelector('tbody[data-block-id="17"]');
+        if (footer) footer.remove();
+    },
+    remove_social: doc => {
+        const socialTable = doc.querySelector('table.mceSocialFollowBlock');
+        if (socialTable) {
+            const socialTr = socialTable.closest('tr');
+            if (socialTr) socialTr.remove();
+        }
+    },
+    standardize_bg: doc => {
+        // Standardize all dark backgrounds (hex or rgb) to white
+        doc.querySelectorAll('[style*="background-color"]').forEach(el => {
+            const bg = el.style.backgroundColor.trim().toLowerCase();
+            // Match #252525, #232323, #222, etc.
+            if (bg.match(/^#2[0-5][0-9]2[0-5][0-9]2[0-5][0-9]$/) || bg.match(/^#222$/)) {
+                el.style.backgroundColor = 'white';
+            }
+            // Match rgb(0-60, 0-60, 0-60)
+            const rgbMatch = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            if (rgbMatch) {
+                const [r, g, b] = rgbMatch.slice(1).map(Number);
+                if (r <= 60 && g <= 60 && b <= 60) {
+                    el.style.backgroundColor = 'white';
+                }
+            }
+            // Also match #252525 in style attribute (not parsed)
+            if (el.getAttribute('style') && el.getAttribute('style').includes('#252525')) {
+                el.style.backgroundColor = 'white';
+            }
+        });
+        const mainContainer = doc.querySelector('table.mcnTextBlock');
+        if (mainContainer) mainContainer.style.backgroundColor = 'white';
+        if (doc.body) doc.body.style.backgroundColor = 'white';
+        const mainTable = doc.querySelector('table.mcnTextBlockInner');
+        if (mainTable) mainTable.style.backgroundColor = 'white';
+    },
+    remove_legacy_footer: doc => {
+        const footerTd = doc.querySelector('td#templateFooter');
+        if (footerTd) {
+            const footerTr = footerTd.closest('tr');
+            if (footerTr) footerTr.remove();
+        }
+    },
+    standardize_dark_gray_bg: doc => {
+        // Standardize all dark gray backgrounds (rgb(37,37,37) and similar)
+        doc.querySelectorAll('[style*="background-color"]').forEach(el => {
+            const bg = el.style.backgroundColor.trim().toLowerCase();
+            const rgbMatch = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            if (rgbMatch) {
+                const [r, g, b] = rgbMatch.slice(1).map(Number);
+                if (r <= 60 && g <= 60 && b <= 60) {
+                    el.style.backgroundColor = 'white';
+                }
+            }
+        });
+    },
+    remove_header_banner: doc => {
+        // Remove any large image at the top (likely a banner)
+        const images = Array.from(doc.querySelectorAll('img'));
+        for (const img of images) {
+            // Remove if width >= 600 or parent is a header/banner
+            if (
+                (img.width && img.width >= 600) ||
+                (img.naturalWidth && img.naturalWidth >= 600) ||
+                (img.closest('[class*="header" i], [class*="banner" i]'))
+            ) {
+                const parentRow = img.closest('tr') || img.closest('td') || img;
+                parentRow.remove();
+                break;
+            }
+        }
+        // Also try to remove a table row with a banner-like class
+        const bannerRow = doc.querySelector('tr[class*="header" i], tr[class*="banner" i]');
+        if (bannerRow) bannerRow.remove();
+    }
+};
+
+// --- HTML Cleaning Pipeline ---
+function modifyHtml(html, options) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    Object.entries(options).forEach(([key, enabled]) => {
+        if (enabled && cleaningActions[key]) {
+            cleaningActions[key](doc);
+        }
+    });
+    return doc.documentElement.outerHTML;
+}
+
+// --- Preview and File Handling ---
+function updatePreview(frameId, content) {
+    const frame = document.getElementById(frameId);
+    const frameDoc = frame.contentDocument || frame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { background-color: white; margin: 0; padding: 0; }
+          </style>
+        </head>
+        <body class="preview-frame-content">
+          ${content}
+        </body>
+        </html>
+    `);
+    frameDoc.close();
 }
 
 function handleFileUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const content = e.target.result;
-    document.getElementById('inputHtml').value = content;
-    updatePreview('inputPreview', content);
-    processHtml();
-  };
-  reader.readAsText(file);
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        document.getElementById('inputHtml').value = content;
+        updatePreview('inputPreview', content);
+        processHtml();
+    };
+    reader.readAsText(file);
 }
 
-function updatePreview(frameId, content) {
-  const frame = document.getElementById(frameId);
-  const frameDoc = frame.contentDocument || frame.contentWindow.document;
-  frameDoc.open();
-  frameDoc.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        body {
-          background-color: white;
-          margin: 0;
-          padding: 0;
-        }
-      </style>
-    </head>
-    <body class="preview-frame-content">
-      ${content}
-    </body>
-    </html>
-  `);
-  frameDoc.close();
-}
-
-function getOptions() {
-  return {
-    remove_footer: document.getElementById('removeFooter').checked,
-    remove_social: document.getElementById('removeSocial').checked,
-    standardize_bg: document.getElementById('standardizeBg').checked,
-    remove_legacy_footer: document.getElementById('removeLegacyFooter').checked
-  };
-}
-
-function modifyHtml(html, options) {
-  // Create a DOM parser
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  if (options.remove_footer) {
-    // Remove footer (tbody with data-block-id="17")
-    const footer = doc.querySelector('tbody[data-block-id="17"]');
-    if (footer) {
-      footer.remove();
-    }
-  }
-
-  if (options.remove_social) {
-    // Remove LinkedIn section
-    const socialTable = doc.querySelector('table.mceSocialFollowBlock');
-    if (socialTable) {
-      const socialTr = socialTable.closest('tr');
-      if (socialTr) {
-        socialTr.remove();
-      }
-    }
-  }
-
-  if (options.standardize_bg) {
-    // Find all elements that have background-color:#252525 in their style attribute
-    const elements = doc.querySelectorAll('[style*="background-color:#252525"]');
-    elements.forEach(element => {
-      element.style.backgroundColor = 'white';
-    });
-
-    // Set background color for the main container
-    const mainContainer = doc.querySelector('table.mcnTextBlock');
-    if (mainContainer) {
-      mainContainer.style.backgroundColor = 'white';
-    }
-
-    // Set background color for the body
-    const body = doc.body;
-    if (body) {
-      body.style.backgroundColor = 'white';
-    }
-
-    // Set background color for the main table
-    const mainTable = doc.querySelector('table.mcnTextBlockInner');
-    if (mainTable) {
-      mainTable.style.backgroundColor = 'white';
-    }
-  }
-
-  if (options.remove_legacy_footer) {
-    // Remove legacy Mailchimp footer
-    const footerTd = doc.querySelector('td#templateFooter');
-    if (footerTd) {
-      const footerTr = footerTd.closest('tr');
-      if (footerTr) {
-        footerTr.remove();
-      }
-    }
-  }
-
-  return doc.documentElement.outerHTML;
-}
-
+// --- Main Cleaning Trigger ---
 function processHtml() {
-  const inputHtml = document.getElementById('inputHtml').value;
-  const options = getOptions();
-  
-  try {
-    const modifiedHtml = modifyHtml(inputHtml, options);
-    document.getElementById('outputHtml').value = modifiedHtml;
-    updatePreview('outputPreview', modifiedHtml);
-  } catch (error) {
-    console.error('Error:', error);
-    alert('An error occurred while processing the HTML');
-  }
+    const inputHtml = document.getElementById('inputHtml').value;
+    const options = getOptions();
+    try {
+        const modifiedHtml = modifyHtml(inputHtml, options);
+        document.getElementById('outputHtml').value = modifiedHtml;
+        updatePreview('outputPreview', modifiedHtml);
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while processing the HTML.\n' + (error.message || error));
+    }
 }
 
-// Add event listeners
-document.addEventListener('DOMContentLoaded', function() {
-  const inputHtml = document.getElementById('inputHtml');
-  let debounceTimer;
-  
-  // Add input event listener
-  inputHtml.addEventListener('input', function() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      updatePreview('inputPreview', this.value);
-      processHtml();
-    }, 500);
-  });
+// --- Output Copy/Download ---
+function copyOutput() {
+    const outputText = document.getElementById('outputHtml');
+    outputText.select();
+    document.execCommand('copy');
+    const button = document.querySelector('.btn-primary');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => {
+        button.innerHTML = originalText;
+    }, 2000);
+}
 
-  // Add change event listeners to all toggle switches
-  const toggles = document.querySelectorAll('.toggle-switch input[type="checkbox"]');
-  toggles.forEach(toggle => {
-    toggle.addEventListener('change', processHtml);
-  });
-
-  // Add collapse event listener
-  const cleaningOptions = document.getElementById('cleaningOptions');
-  cleaningOptions.addEventListener('hide.bs.collapse', function () {
-    document.querySelector('.toggle-icon').classList.add('collapsed');
-  });
-  cleaningOptions.addEventListener('show.bs.collapse', function () {
-    document.querySelector('.toggle-icon').classList.remove('collapsed');
-  });
-
-  // Add file upload listener
-  const fileUpload = document.getElementById('fileUpload');
-  fileUpload.addEventListener('change', handleFileUpload);
-}); 
+function downloadOutput() {
+    const outputText = document.getElementById('outputHtml').value;
+    if (!outputText) {
+        alert('No content to download!');
+        return;
+    }
+    const blob = new Blob([outputText], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cleaned_mailchimp.html';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+} 

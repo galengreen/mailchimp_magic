@@ -88,11 +88,15 @@
             <div class="row">
                 <div class="col-12 mb-4">
                     <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-eye"></i> Input Preview</h5>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-code"></i> Input Preview</h5>
+                            <button class="btn btn-outline-primary btn-sm ms-2 preview-newtab-btn" id="openInputPreview"
+                                title="Open Input Preview in New Tab">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
                         </div>
                         <div class="card-body">
-                            <div class="preview-wrapper">
+                            <div class="preview-wrapper d-flex align-items-center gap-2">
                                 <iframe id="inputPreview" class="preview-frame"></iframe>
                             </div>
                         </div>
@@ -112,36 +116,52 @@
                         <div id="cleaningOptions" class="collapse">
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3 d-flex align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="mb-3 d-flex align-items-center toggle-row">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="removeHeaderBanner" />
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="option-label">Banner</span>
+                                        </div>
+                                        <div class="mb-3 d-flex align-items-center toggle-row">
                                             <label class="toggle-switch">
                                                 <input type="checkbox" id="removeFooter" checked />
                                                 <span class="slider"></span>
                                             </label>
-                                            <span class="option-label">Remove Footer</span>
+                                            <span class="option-label">Footer</span>
                                         </div>
-                                        <div class="mb-3 d-flex align-items-center">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3 d-flex align-items-center toggle-row">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="removeLegacyFooter" />
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="option-label">Legacy Footer</span>
+                                        </div>
+                                        <div class="mb-3 d-flex align-items-center toggle-row">
                                             <label class="toggle-switch">
                                                 <input type="checkbox" id="removeSocial" checked />
                                                 <span class="slider"></span>
                                             </label>
-                                            <span class="option-label">Remove Social Media Section</span>
+                                            <span class="option-label">Social</span>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3 d-flex align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="mb-3 d-flex align-items-center toggle-row">
                                             <label class="toggle-switch">
                                                 <input type="checkbox" id="standardizeBg" checked />
                                                 <span class="slider"></span>
                                             </label>
-                                            <span class="option-label">Standardize Background Color</span>
+                                            <span class="option-label">Content Background</span>
                                         </div>
-                                        <div class="mb-3 d-flex align-items-center">
+                                        <div class="mb-3 d-flex align-items-center toggle-row">
                                             <label class="toggle-switch">
-                                                <input type="checkbox" id="removeLegacyFooter" checked />
+                                                <input type="checkbox" id="standardizeDarkGrayBg" checked />
                                                 <span class="slider"></span>
                                             </label>
-                                            <span class="option-label">Remove Legacy Footer</span>
+                                            <span class="option-label">Page Background</span>
                                         </div>
                                     </div>
                                 </div>
@@ -152,11 +172,15 @@
 
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-eye"></i> Output Preview</h5>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-wand-magic-sparkles"></i> Output Preview</h5>
+                            <button class="btn btn-outline-success btn-sm ms-2 preview-newtab-btn"
+                                id="openOutputPreview" title="Open Output Preview in New Tab">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
                         </div>
                         <div class="card-body">
-                            <div class="preview-wrapper">
+                            <div class="preview-wrapper d-flex align-items-center gap-2">
                                 <iframe id="outputPreview" class="preview-frame"></iframe>
                             </div>
                         </div>

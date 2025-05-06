@@ -416,3 +416,7 @@ iframe {
   position: relative;
   z-index: 1;
 }
+
+.preview-newtab-btn .fa-external-link-alt {
+  color: #fff !important;
+}
