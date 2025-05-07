@@ -61,7 +61,7 @@ body {
 
 .preview-frame {
   width: 100%;
-  height: 600px;
+  height: 500px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: white;
@@ -70,6 +70,12 @@ body {
   z-index: 1;
   position: relative;
   isolation: isolate;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.preview-frame::-webkit-scrollbar {
+  display: none !important;
 }
 
 .preview-actions {
@@ -252,11 +258,22 @@ h1:hover .magic-wand {
   }
 }
 
-/* Add styles for iframe content */
+/* Add styles for the iframe content */
 .preview-frame-content {
-  background-color: white !important;
-  min-height: 100%;
   width: 100%;
+  min-height: 100%;
+  transform: scale(0.8);
+  transform-origin: top left;
+  padding: 0;
+  margin: 0;
+  background-color: white !important;
+}
+
+.preview-content {
+  width: 125%;
+  min-height: 100%;
+  padding: 0;
+  margin: 0;
 }
 
 textarea {
@@ -459,6 +476,15 @@ iframe {
   position: relative;
   z-index: 1;
   isolation: isolate;
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.preview-wrapper::-webkit-scrollbar {
+  display: none !important;
 }
 
 /* Add a container for the entire page */
@@ -468,7 +494,7 @@ iframe {
 }
 
 .preview-newtab-btn .fa-external-link-alt {
-  color: #fff !important;
+  color: var(--primary-color) !important;
 }
 
 /* Update code output box styling */
@@ -573,4 +599,32 @@ pre:focus {
 #themeToggle:hover i,
 #mouseEffectsToggle:hover i {
   color: #2ecc71 !important;
+}
+
+.preview-zoom {
+  width: 100%;
+  height: 500px;
+  border: 1px solid #e0e0e0;
+  background: white;
+  overflow: auto;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.preview-zoom::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Add a new class for the preview container */
+.preview-container {
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  position: relative;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.preview-container::-webkit-scrollbar {
+  display: none !important;
 }

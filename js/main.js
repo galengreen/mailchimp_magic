@@ -378,7 +378,12 @@ document.addEventListener('DOMContentLoaded', function() {
         openHtmlInNewTab(document.getElementById('inputHtml').value);
     });
     document.getElementById('openOutputPreview').addEventListener('click', function() {
-        openHtmlInNewTab(document.getElementById('outputHtml').value);
+        const outputHtml = document.getElementById('outputHtml');
+        if (outputHtml && outputHtml.textContent) {
+            openHtmlInNewTab(outputHtml.textContent);
+        } else {
+            alert('No output content to preview!');
+        }
     });
 });
 
@@ -394,28 +399,52 @@ function getOptions() {
     };
 }
 
+// --- Utility Functions ---
+function getElementById(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+        console.warn(`Element with id "${id}" not found`);
+    }
+    return element;
+}
+
+function removeElement(element) {
+    if (element && element.parentNode) {
+        element.parentNode.removeChild(element);
+    }
+}
+
+function findAndRemoveElement(doc, selector) {
+    const element = doc.querySelector(selector);
+    if (element) {
+        removeElement(element);
+    }
+}
+
+function findAndRemoveElements(doc, selector) {
+    doc.querySelectorAll(selector).forEach(removeElement);
+}
+
 // --- Cleaning Actions Mapping ---
 const cleaningActions = {
     remove_footer: doc => {
-        const footer = doc.querySelector('tbody[data-block-id="17"]');
-        if (footer) footer.remove();
+        findAndRemoveElement(doc, 'tbody[data-block-id="17"]');
     },
     remove_social: doc => {
         const socialTable = doc.querySelector('table.mceSocialFollowBlock');
         if (socialTable) {
             const socialTr = socialTable.closest('tr');
-            if (socialTr) socialTr.remove();
+            removeElement(socialTr);
         }
     },
     remove_legacy_footer: doc => {
         const footerTd = doc.querySelector('td#templateFooter');
         if (footerTd) {
             const footerTr = footerTd.closest('tr');
-            if (footerTr) footerTr.remove();
+            removeElement(footerTr);
         }
     },
     standardize_dark_gray_bg: doc => {
-        // Standardize all dark gray backgrounds (rgb(37,37,37) and similar)
         doc.querySelectorAll('[style*="background-color"]').forEach(el => {
             const bg = el.style.backgroundColor.trim().toLowerCase();
             const rgbMatch = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
@@ -428,68 +457,99 @@ const cleaningActions = {
         });
     },
     remove_header_banner: doc => {
-        // Remove any large image at the top (likely a banner)
+        // Remove banner images
         const images = Array.from(doc.querySelectorAll('img'));
         for (const img of images) {
-            // Remove if width >= 600 or parent is a header/banner
             if (
                 (img.width && img.width >= 600) ||
                 (img.naturalWidth && img.naturalWidth >= 600) ||
                 (img.closest('[class*="header" i], [class*="banner" i]'))
             ) {
                 const parentRow = img.closest('tr') || img.closest('td') || img;
-                parentRow.remove();
+                removeElement(parentRow);
                 break;
             }
         }
-        // Also try to remove a table row with a banner-like class
-        const bannerRow = doc.querySelector('tr[class*="header" i], tr[class*="banner" i]');
-        if (bannerRow) bannerRow.remove();
+        // Remove banner rows
+        findAndRemoveElement(doc, 'tr[class*="header" i], tr[class*="banner" i]');
     },
     remove_subscribe: doc => {
-        // Remove subscribe button sections (Mailchimp: class 'mceButtonLink' with href containing 'SUBSCRIBE')
+        // Remove subscribe buttons and related elements
         doc.querySelectorAll('a.mceButtonLink[href*="SUBSCRIBE"], a[href*="SUBSCRIBE"]').forEach(a => {
             const btnRow = a.closest('tr') || a.closest('table') || a.closest('div') || a;
-            btnRow.remove();
+            removeElement(btnRow);
         });
-        // Also remove any block with data-block-id or id containing 'subscribe'
-        doc.querySelectorAll('[data-block-id*="subscribe" i], [id*="subscribe" i]').forEach(el => {
-            el.remove();
-        });
+        // Remove subscribe blocks
+        findAndRemoveElements(doc, '[data-block-id*="subscribe" i], [id*="subscribe" i]');
     }
 };
 
 // --- HTML Cleaning Pipeline ---
 function modifyHtml(html, options) {
+    if (!html || !html.trim()) return '';
+    
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
+    
+    // Apply cleaning actions for unchecked options
     Object.entries(options).forEach(([key, enabled]) => {
-        if (enabled && cleaningActions[key]) {
+        if (!enabled && cleaningActions[key]) {
             cleaningActions[key](doc);
         }
     });
+    
     return doc.documentElement.outerHTML;
 }
 
 // --- Preview and File Handling ---
 function updatePreview(frameId, content) {
-  const frame = document.getElementById(frameId);
-  const frameDoc = frame.contentDocument || frame.contentWindow.document;
-  frameDoc.open();
-  frameDoc.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-            body { background-color: white; margin: 0; padding: 0; }
-      </style>
-    </head>
-    <body class="preview-frame-content">
-      ${content}
-    </body>
-    </html>
-  `);
-  frameDoc.close();
+    const frame = getElementById(frameId);
+    if (!frame) return;
+    
+    const frameDoc = frame.contentDocument || frame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                html, body { 
+                    margin: 0; 
+                    padding: 0; 
+                    width: 100%;
+                    height: 100%;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+                html::-webkit-scrollbar, body::-webkit-scrollbar {
+                    display: none;
+                }
+                body { 
+                    background-color: white; 
+                    transform: scale(0.8);
+                    transform-origin: top left;
+                }
+                .preview-content {
+                    width: 125%;
+                    min-height: 100%;
+                    padding: 0;
+                    margin: 0;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+                .preview-content::-webkit-scrollbar {
+                    display: none;
+                }
+            </style>
+        </head>
+        <body class="preview-frame-content">
+            <div class="preview-content">
+                ${content}
+            </div>
+        </body>
+        </html>
+    `);
+    frameDoc.close();
 }
 
 function handleFileUpload(event) {
@@ -507,57 +567,58 @@ function handleFileUpload(event) {
 
 // --- Main Cleaning Trigger ---
 function processHtml() {
-  const inputHtml = document.getElementById('inputHtml').value;
-  const options = getOptions();
-  try {
-    // If input is empty or only contains whitespace, return empty string
-    if (!inputHtml || !inputHtml.trim()) {
-      const outputHtml = document.getElementById('outputHtml');
-      outputHtml.textContent = '';
-      updatePreview('outputPreview', '');
-      return;
+    const inputHtml = getElementById('inputHtml')?.value;
+    const options = getOptions();
+    
+    try {
+        const modifiedHtml = modifyHtml(inputHtml, options);
+        const outputHtml = getElementById('outputHtml');
+        
+        if (outputHtml) {
+            outputHtml.textContent = modifiedHtml;
+            Prism.highlightElement(outputHtml);
+        }
+        
+        updatePreview('outputPreview', modifiedHtml);
+    } catch (error) {
+        console.error('Error processing HTML:', error);
+        alert('An error occurred while processing the HTML.\n' + (error.message || error));
     }
-
-    const modifiedHtml = modifyHtml(inputHtml, options);
-    const outputHtml = document.getElementById('outputHtml');
-    outputHtml.textContent = modifiedHtml;
-
-    // Syntax highlighting for the output html
-    Prism.highlightElement(outputHtml);
-    updatePreview('outputPreview', modifiedHtml);
-  } catch (error) {
-    console.error('Error:', error);
-    alert('An error occurred while processing the HTML.\n' + (error.message || error));
-  }
 }
 
 // --- Output Copy/Download ---
 function copyOutput() {
-    const outputText = document.getElementById('outputHtml');
+    const outputText = getElementById('outputHtml');
+    if (!outputText?.textContent) {
+        alert('No content to copy!');
+        return;
+    }
 
-    // Temporarily create a textarea of the output text to copy it
     const tempTextarea = document.createElement('textarea');
     tempTextarea.value = outputText.textContent;
     document.body.appendChild(tempTextarea);
     tempTextarea.select();
     document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
+    removeElement(tempTextarea);
 
     const button = document.querySelector('.btn-primary');
-    const originalText = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
-    setTimeout(() => {
-        button.innerHTML = originalText;
-    }, 2000);
+    if (button) {
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => {
+            button.innerHTML = originalText;
+        }, 2000);
+    }
 }
 
 function downloadOutput() {
-    const outputText = document.getElementById('outputHtml').textContent;
-    if (!outputText) {
+    const outputText = getElementById('outputHtml');
+    if (!outputText?.textContent) {
         alert('No content to download!');
         return;
     }
-    const blob = new Blob([outputText], { type: 'text/html' });
+    
+    const blob = new Blob([outputText.textContent], { type: 'text/html' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -565,5 +626,5 @@ function downloadOutput() {
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    removeElement(a);
 } 
