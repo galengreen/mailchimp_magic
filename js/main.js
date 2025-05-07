@@ -232,6 +232,48 @@ function openHtmlInNewTab(html) {
     setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
+// --- Demo Mode Function ---
+let savedInput = null;
+let isDemoMode = false;
+
+async function loadDemoHtml() {
+    try {
+        const inputHtml = document.getElementById('inputHtml');
+        const demoButton = document.querySelector('button[onclick="loadDemoHtml()"]');
+        
+        if (!isDemoMode) {
+            // Save current input if it's not empty
+            if (inputHtml.value.trim()) {
+                savedInput = inputHtml.value;
+            }
+            
+            // Load demo HTML
+            const response = await fetch('./assets/demo.html');
+            if (!response.ok) {
+                throw new Error('Failed to load demo HTML');
+            }
+            const demoHtml = await response.text();
+            inputHtml.value = demoHtml;
+            updatePreview('inputPreview', demoHtml);
+            processHtml();
+            isDemoMode = true;
+            // Update button text
+            demoButton.innerHTML = '<i class="fas fa-undo"></i> Revert';
+        } else {
+            // Restore previous input or clear if none was saved
+            inputHtml.value = savedInput || '';
+            updatePreview('inputPreview', inputHtml.value);
+            processHtml();
+            isDemoMode = false;
+            // Update button text
+            demoButton.innerHTML = '<i class="fas fa-play"></i> Demo Mode';
+        }
+    } catch (error) {
+        console.error('Error loading demo HTML:', error);
+        alert('Failed to load demo HTML. Please try again later.');
+    }
+}
+
 // --- Event Listeners for UI ---
 document.addEventListener('DOMContentLoaded', function() {
     // Mouse effects toggle functionality
@@ -328,7 +370,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.toggle-icon').classList.remove('collapsed');
     });
     // File upload
-    document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
+    const fileUpload = document.getElementById('fileUpload');
+    fileUpload.addEventListener('change', handleFileUpload);
+
     // Open previews in new tab
     document.getElementById('openInputPreview').addEventListener('click', function() {
         openHtmlInNewTab(document.getElementById('inputHtml').value);
@@ -464,8 +508,16 @@ function handleFileUpload(event) {
 // --- Main Cleaning Trigger ---
 function processHtml() {
   const inputHtml = document.getElementById('inputHtml').value;
-    const options = getOptions();
+  const options = getOptions();
   try {
+    // If input is empty or only contains whitespace, return empty string
+    if (!inputHtml || !inputHtml.trim()) {
+      const outputHtml = document.getElementById('outputHtml');
+      outputHtml.textContent = '';
+      updatePreview('outputPreview', '');
+      return;
+    }
+
     const modifiedHtml = modifyHtml(inputHtml, options);
     const outputHtml = document.getElementById('outputHtml');
     outputHtml.textContent = modifiedHtml;
@@ -475,8 +527,8 @@ function processHtml() {
     updatePreview('outputPreview', modifiedHtml);
   } catch (error) {
     console.error('Error:', error);
-        alert('An error occurred while processing the HTML.\n' + (error.message || error));
-    }
+    alert('An error occurred while processing the HTML.\n' + (error.message || error));
+  }
 }
 
 // --- Output Copy/Download ---
