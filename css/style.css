@@ -276,68 +276,127 @@ h1:hover .magic-wand {
   margin: 0;
 }
 
-textarea {
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.card-body textarea,
+.card-body pre.form-control {
+  flex: 1;
+  margin: 0;
+  height: 300px !important;
+  min-height: 300px !important;
+  max-height: 300px !important;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--input-text);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 0.375rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+textarea,
+pre.form-control {
   background-color: var(--input-bg) !important;
   color: var(--input-text) !important;
   border-color: var(--input-border) !important;
   font-family: monospace;
   font-size: 14px;
   line-height: 1.5;
-  resize: vertical;
-  min-height: 400px;
-  max-height: 800px;
   white-space: pre;
   tab-size: 2;
-  transition: background-color var(--animation-timing),
-    color var(--animation-timing), border-color var(--animation-timing);
+  padding: 1rem;
+  margin: 0;
+  resize: none;
+  overflow: auto;
 }
 
-textarea:focus {
-  background-color: var(--input-bg) !important;
-  color: var(--input-text) !important;
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25) !important;
-  outline: none;
-}
-
-textarea::placeholder {
-  color: var(--input-placeholder) !important;
-}
-
-.input-group {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.input-group .form-control {
-  border-right: none;
-}
-
-.input-group .btn {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: none;
-  border-radius: 0 8px 8px 0 !important;
-}
-
-.input-group .form-control:focus {
-  box-shadow: none;
-  border-color: var(--primary-color);
-}
-
-.input-group .form-control:focus + .btn {
-  border-color: var(--primary-color);
-}
-
-.card-body {
-  flex: 1;
+pre.form-control {
   display: flex;
   flex-direction: column;
+  padding: 0;
 }
 
-.card-body textarea {
+pre.form-control code {
   flex: 1;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre;
+  tab-size: 2;
+  padding: 1rem;
+  margin: 0;
+  height: 100%;
+  display: block;
+}
+
+/* Syntax highlighting styles for output textarea */
+#outputHtml {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+#outputHtml .token.comment,
+#outputHtml .token.prolog,
+#outputHtml .token.doctype,
+#outputHtml .token.cdata {
+  color: var(--prism-comment) !important;
+}
+
+#outputHtml .token.punctuation {
+  color: var(--prism-punctuation) !important;
+}
+
+#outputHtml .token.property,
+#outputHtml .token.tag,
+#outputHtml .token.boolean,
+#outputHtml .token.number,
+#outputHtml .token.constant,
+#outputHtml .token.symbol {
+  color: var(--prism-number) !important;
+}
+
+#outputHtml .token.selector,
+#outputHtml .token.attr-name,
+#outputHtml .token.string,
+#outputHtml .token.char,
+#outputHtml .token.builtin {
+  color: var(--prism-string) !important;
+}
+
+#outputHtml .token.operator,
+#outputHtml .token.entity,
+#outputHtml .token.url,
+#outputHtml .language-css .token.string,
+#outputHtml .style .token.string {
+  color: var(--prism-operator) !important;
+}
+
+#outputHtml .token.atrule,
+#outputHtml .token.attr-value,
+#outputHtml .token.keyword {
+  color: var(--prism-keyword) !important;
+}
+
+#outputHtml .token.function {
+  color: var(--prism-function) !important;
+}
+
+#outputHtml .token.regex,
+#outputHtml .token.important,
+#outputHtml .token.variable {
+  color: var(--prism-text) !important;
 }
 
 .card-header[data-bs-toggle="collapse"] {
@@ -504,8 +563,9 @@ pre {
   border: 1px solid var(--input-border) !important;
   border-radius: 8px;
   margin: 0;
-  padding: 1rem;
+  padding: 0;
   overflow: auto;
+  height: 300px;
   transition: background-color var(--animation-timing),
     color var(--animation-timing), border-color var(--animation-timing);
 }

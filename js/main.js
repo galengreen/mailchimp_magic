@@ -223,9 +223,23 @@ function initMouseTrail() {
 }
 
 // --- Utility: Open HTML in New Tab ---
-function openHtmlInNewTab(html) {
+function openHtmlInNewTab(html, title = 'Preview') {
     const blob = new Blob([
-        `<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>${html}</body></html>`
+        `<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='utf-8'>
+            <title>${title}</title>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 20px;
+                    background-color: white;
+                }
+            </style>
+        </head>
+        <body>${html}</body>
+        </html>`
     ], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
@@ -375,12 +389,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Open previews in new tab
     document.getElementById('openInputPreview').addEventListener('click', function() {
-        openHtmlInNewTab(document.getElementById('inputHtml').value);
+        openHtmlInNewTab(document.getElementById('inputHtml').value, 'Input Preview');
     });
     document.getElementById('openOutputPreview').addEventListener('click', function() {
         const outputHtml = document.getElementById('outputHtml');
         if (outputHtml && outputHtml.textContent) {
-            openHtmlInNewTab(outputHtml.textContent);
+            openHtmlInNewTab(outputHtml.textContent, 'Output Preview');
         } else {
             alert('No output content to preview!');
         }
@@ -390,61 +404,37 @@ document.addEventListener('DOMContentLoaded', function() {
 // --- Cleaning Option State ---
 function getOptions() {
     return {
-        remove_footer: document.getElementById('removeFooter').checked,
-        remove_social: document.getElementById('removeSocial').checked,
-        remove_legacy_footer: document.getElementById('removeLegacyFooter').checked,
-        standardize_dark_gray_bg: document.getElementById('standardizeDarkGrayBg').checked,
-        remove_header_banner: document.getElementById('removeHeaderBanner').checked,
-        remove_subscribe: document.getElementById('removeSubscribe').checked
+        remove_footer: !document.getElementById('keepFooter').checked,
+        remove_social: !document.getElementById('keepSocial').checked,
+        remove_legacy_footer: !document.getElementById('keepLegacyFooter').checked,
+        standardize_dark_gray_bg: !document.getElementById('keepDarkGrayBg').checked,
+        remove_header_banner: !document.getElementById('keepHeaderBanner').checked,
+        remove_subscribe: !document.getElementById('keepSubscribe').checked
     };
-}
-
-// --- Utility Functions ---
-function getElementById(id) {
-    const element = document.getElementById(id);
-    if (!element) {
-        console.warn(`Element with id "${id}" not found`);
-    }
-    return element;
-}
-
-function removeElement(element) {
-    if (element && element.parentNode) {
-        element.parentNode.removeChild(element);
-    }
-}
-
-function findAndRemoveElement(doc, selector) {
-    const element = doc.querySelector(selector);
-    if (element) {
-        removeElement(element);
-    }
-}
-
-function findAndRemoveElements(doc, selector) {
-    doc.querySelectorAll(selector).forEach(removeElement);
 }
 
 // --- Cleaning Actions Mapping ---
 const cleaningActions = {
     remove_footer: doc => {
-        findAndRemoveElement(doc, 'tbody[data-block-id="17"]');
+        const footer = doc.querySelector('tbody[data-block-id="17"]');
+        if (footer) footer.remove();
     },
     remove_social: doc => {
         const socialTable = doc.querySelector('table.mceSocialFollowBlock');
         if (socialTable) {
             const socialTr = socialTable.closest('tr');
-            removeElement(socialTr);
+            if (socialTr) socialTr.remove();
         }
     },
     remove_legacy_footer: doc => {
         const footerTd = doc.querySelector('td#templateFooter');
         if (footerTd) {
             const footerTr = footerTd.closest('tr');
-            removeElement(footerTr);
+            if (footerTr) footerTr.remove();
         }
     },
     standardize_dark_gray_bg: doc => {
+        // Standardize all dark gray backgrounds (rgb(37,37,37) and similar)
         doc.querySelectorAll('[style*="background-color"]').forEach(el => {
             const bg = el.style.backgroundColor.trim().toLowerCase();
             const rgbMatch = bg.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
@@ -457,99 +447,96 @@ const cleaningActions = {
         });
     },
     remove_header_banner: doc => {
-        // Remove banner images
+        // Remove any large image at the top (likely a banner)
         const images = Array.from(doc.querySelectorAll('img'));
         for (const img of images) {
+            // Remove if width >= 600 or parent is a header/banner
             if (
                 (img.width && img.width >= 600) ||
                 (img.naturalWidth && img.naturalWidth >= 600) ||
                 (img.closest('[class*="header" i], [class*="banner" i]'))
             ) {
                 const parentRow = img.closest('tr') || img.closest('td') || img;
-                removeElement(parentRow);
+                parentRow.remove();
                 break;
             }
         }
-        // Remove banner rows
-        findAndRemoveElement(doc, 'tr[class*="header" i], tr[class*="banner" i]');
+        // Also try to remove a table row with a banner-like class
+        const bannerRow = doc.querySelector('tr[class*="header" i], tr[class*="banner" i]');
+        if (bannerRow) bannerRow.remove();
     },
     remove_subscribe: doc => {
-        // Remove subscribe buttons and related elements
+        // Remove subscribe button sections (Mailchimp: class 'mceButtonLink' with href containing 'SUBSCRIBE')
         doc.querySelectorAll('a.mceButtonLink[href*="SUBSCRIBE"], a[href*="SUBSCRIBE"]').forEach(a => {
             const btnRow = a.closest('tr') || a.closest('table') || a.closest('div') || a;
-            removeElement(btnRow);
+            btnRow.remove();
         });
-        // Remove subscribe blocks
-        findAndRemoveElements(doc, '[data-block-id*="subscribe" i], [id*="subscribe" i]');
+        // Also remove any block with data-block-id or id containing 'subscribe'
+        doc.querySelectorAll('[data-block-id*="subscribe" i], [id*="subscribe" i]').forEach(el => {
+            el.remove();
+        });
     }
 };
 
 // --- HTML Cleaning Pipeline ---
 function modifyHtml(html, options) {
-    if (!html || !html.trim()) return '';
-    
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
-    
-    // Apply cleaning actions for unchecked options
     Object.entries(options).forEach(([key, enabled]) => {
-        if (!enabled && cleaningActions[key]) {
+        if (enabled && cleaningActions[key]) {
             cleaningActions[key](doc);
         }
     });
-    
     return doc.documentElement.outerHTML;
 }
 
 // --- Preview and File Handling ---
 function updatePreview(frameId, content) {
-    const frame = getElementById(frameId);
-    if (!frame) return;
-    
-    const frameDoc = frame.contentDocument || frame.contentWindow.document;
-    frameDoc.open();
-    frameDoc.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                html, body { 
-                    margin: 0; 
-                    padding: 0; 
-                    width: 100%;
-                    height: 100%;
-                    scrollbar-width: none;
-                    -ms-overflow-style: none;
-                }
-                html::-webkit-scrollbar, body::-webkit-scrollbar {
-                    display: none;
-                }
-                body { 
-                    background-color: white; 
-                    transform: scale(0.8);
-                    transform-origin: top left;
-                }
-                .preview-content {
-                    width: 125%;
-                    min-height: 100%;
-                    padding: 0;
-                    margin: 0;
-                    scrollbar-width: none;
-                    -ms-overflow-style: none;
-                }
-                .preview-content::-webkit-scrollbar {
-                    display: none;
-                }
-            </style>
-        </head>
-        <body class="preview-frame-content">
-            <div class="preview-content">
-                ${content}
-            </div>
-        </body>
-        </html>
-    `);
-    frameDoc.close();
+  const frame = document.getElementById(frameId);
+  const frameDoc = frame.contentDocument || frame.contentWindow.document;
+  frameDoc.open();
+  frameDoc.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        html, body { 
+          margin: 0; 
+          padding: 0; 
+          width: 100%;
+          height: 100%;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+          display: none;
+        }
+        body { 
+          background-color: white; 
+          transform: scale(0.8);
+          transform-origin: top left;
+        }
+        .preview-content {
+          width: 125%;
+          min-height: 100%;
+          padding: 0;
+          margin: 0;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .preview-content::-webkit-scrollbar {
+          display: none;
+        }
+      </style>
+    </head>
+    <body class="preview-frame-content">
+      <div class="preview-content">
+        ${content}
+      </div>
+    </body>
+    </html>
+  `);
+  frameDoc.close();
 }
 
 function handleFileUpload(event) {
@@ -567,58 +554,57 @@ function handleFileUpload(event) {
 
 // --- Main Cleaning Trigger ---
 function processHtml() {
-    const inputHtml = getElementById('inputHtml')?.value;
-    const options = getOptions();
-    
-    try {
-        const modifiedHtml = modifyHtml(inputHtml, options);
-        const outputHtml = getElementById('outputHtml');
-        
-        if (outputHtml) {
-            outputHtml.textContent = modifiedHtml;
-            Prism.highlightElement(outputHtml);
-        }
-        
-        updatePreview('outputPreview', modifiedHtml);
-    } catch (error) {
-        console.error('Error processing HTML:', error);
-        alert('An error occurred while processing the HTML.\n' + (error.message || error));
+  const inputHtml = document.getElementById('inputHtml').value;
+  const options = getOptions();
+  try {
+    // If input is empty or only contains whitespace, return empty string
+    if (!inputHtml || !inputHtml.trim()) {
+      const outputHtml = document.getElementById('outputHtml');
+      outputHtml.textContent = '';
+      updatePreview('outputPreview', '');
+      return;
     }
+
+    const modifiedHtml = modifyHtml(inputHtml, options);
+    const outputHtml = document.getElementById('outputHtml');
+    outputHtml.textContent = modifiedHtml;
+
+    // Syntax highlighting for the output html
+    Prism.highlightElement(outputHtml);
+    updatePreview('outputPreview', modifiedHtml);
+  } catch (error) {
+    console.error('Error:', error);
+    alert('An error occurred while processing the HTML.\n' + (error.message || error));
+  }
 }
 
 // --- Output Copy/Download ---
 function copyOutput() {
-    const outputText = getElementById('outputHtml');
-    if (!outputText?.textContent) {
-        alert('No content to copy!');
-        return;
-    }
+    const outputText = document.getElementById('outputHtml');
 
+    // Temporarily create a textarea of the output text to copy it
     const tempTextarea = document.createElement('textarea');
     tempTextarea.value = outputText.textContent;
     document.body.appendChild(tempTextarea);
     tempTextarea.select();
     document.execCommand('copy');
-    removeElement(tempTextarea);
+    document.body.removeChild(tempTextarea);
 
     const button = document.querySelector('.btn-primary');
-    if (button) {
-        const originalText = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        setTimeout(() => {
-            button.innerHTML = originalText;
-        }, 2000);
-    }
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => {
+        button.innerHTML = originalText;
+    }, 2000);
 }
 
 function downloadOutput() {
-    const outputText = getElementById('outputHtml');
-    if (!outputText?.textContent) {
+    const outputText = document.getElementById('outputHtml').textContent;
+    if (!outputText) {
         alert('No content to download!');
         return;
     }
-    
-    const blob = new Blob([outputText.textContent], { type: 'text/html' });
+    const blob = new Blob([outputText], { type: 'text/html' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -626,5 +612,5 @@ function downloadOutput() {
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
-    removeElement(a);
+    document.body.removeChild(a);
 } 

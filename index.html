@@ -61,11 +61,11 @@
                             <h5 class="mb-0"><i class="fas fa-code"></i> Input HTML</h5>
                         </div>
                         <div class="card-body">
-                            <input type="file" id="fileUpload" accept=".html,.txt" class="d-none" />
                             <textarea id="inputHtml" class="form-control" rows="20"
                                 placeholder="Paste your Mailchimp HTML here..." spellcheck="false"
                                 wrap="off"></textarea>
                             <div class="d-flex gap-2 mt-2">
+                                <input type="file" id="fileUpload" accept=".html,.htm" style="display: none;">
                                 <label for="fileUpload" class="btn btn-outline-primary" style="width: 50%">
                                     <i class="fas fa-upload"></i> Upload HTML File
                                 </label>
@@ -84,11 +84,8 @@
                             </h5>
                         </div>
                         <div class="card-body">
-                            <!-- Output displayed with syntax highlighting -->
-                            <pre style="height: 498px"
-                                class="form-control"><code id="outputHtml" class="language-html" rows="20" readonly spellcheck="false" wrap="off"></code></pre>
-                            <!-- <textarea id="outputHtml" class="form-control" rows="20" readonly spellcheck="false"
-                                wrap="off"></textarea> -->
+                            <pre
+                                class="form-control"><code id="outputHtml" class="language-html" readonly spellcheck="false" wrap="off"></code></pre>
                             <div class="d-flex gap-2 mt-2">
                                 <button class="btn btn-outline-primary flex-grow-1" onclick="copyOutput()">
                                     <i class="fas fa-copy"></i> Copy Output
@@ -119,49 +116,49 @@
                                     <div class="col-md-4">
                                         <div class="mb-3 d-flex align-items-center toggle-row">
                                             <label class="toggle-switch">
-                                                <input type="checkbox" id="removeHeaderBanner" checked />
+                                                <input type="checkbox" id="keepHeaderBanner" checked />
                                                 <span class="slider"></span>
                                             </label>
-                                            <span class="option-label">Banner</span>
+                                            <span class="option-label">Keep Banner</span>
                                         </div>
                                         <div class="mb-3 d-flex align-items-center toggle-row">
                                             <label class="toggle-switch">
-                                                <input type="checkbox" id="removeFooter" />
+                                                <input type="checkbox" id="keepFooter" />
                                                 <span class="slider"></span>
                                             </label>
-                                            <span class="option-label">Footer</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3 d-flex align-items-center toggle-row">
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" id="removeLegacyFooter" checked />
-                                                <span class="slider"></span>
-                                            </label>
-                                            <span class="option-label">Legacy Footer</span>
-                                        </div>
-                                        <div class="mb-3 d-flex align-items-center toggle-row">
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" id="removeSocial" />
-                                                <span class="slider"></span>
-                                            </label>
-                                            <span class="option-label">Social</span>
+                                            <span class="option-label">Keep Footer</span>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3 d-flex align-items-center toggle-row">
                                             <label class="toggle-switch">
-                                                <input type="checkbox" id="removeSubscribe" checked />
+                                                <input type="checkbox" id="keepLegacyFooter" checked />
                                                 <span class="slider"></span>
                                             </label>
-                                            <span class="option-label">Subscribe</span>
+                                            <span class="option-label">Keep Legacy Footer</span>
                                         </div>
                                         <div class="mb-3 d-flex align-items-center toggle-row">
                                             <label class="toggle-switch">
-                                                <input type="checkbox" id="standardizeDarkGrayBg" />
+                                                <input type="checkbox" id="keepSocial" />
                                                 <span class="slider"></span>
                                             </label>
-                                            <span class="option-label">Page Background</span>
+                                            <span class="option-label">Keep Social</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3 d-flex align-items-center toggle-row">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="keepSubscribe" checked />
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="option-label">Keep Subscribe</span>
+                                        </div>
+                                        <div class="mb-3 d-flex align-items-center toggle-row">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="keepDarkGrayBg" />
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="option-label">Keep Page Background</span>
                                         </div>
                                     </div>
                                 </div>
